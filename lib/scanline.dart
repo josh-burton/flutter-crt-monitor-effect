@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:after_layout/after_layout.dart';
+import 'package:crt_monitor_effect/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:keyframes_tween/keyframes_tween.dart';
@@ -30,7 +31,7 @@ class _ScanlineState extends State<Scanline> with AfterLayoutMixin {
       final pixelRenderObject = _pixelKey.currentContext!.findRenderObject();
       RenderRepaintBoundary boundary = pixelRenderObject as RenderRepaintBoundary;
 
-      ui.Image image = await boundary.toImage();
+      ui.Image image = await boundary.toImage(pixelRatio: 1);
       _rawImage.complete(image);
     } catch (e) {
       _scheduleRender();
@@ -77,7 +78,7 @@ class _ScanlineState extends State<Scanline> with AfterLayoutMixin {
         // renders a transparent flicker over the entire content
         Flicker(
           child: Container(
-            color: const Color.fromRGBO(18, 16, 16, 0.1),
+            color: const Color.fromRGBO(18, 16, 16, 0.08),
           ),
         ),
       ],
@@ -102,7 +103,7 @@ class _Pixel extends StatelessWidget {
     return Container(
       width: width,
       height: height,
-      padding: EdgeInsets.all(.1 * width),
+      padding: EdgeInsets.only(right: width / 2, bottom: width / 4),
       child: Stack(
         fit: StackFit.expand,
         children: [
@@ -179,8 +180,13 @@ class _FlickerState extends State<Flicker> with SingleTickerProviderStateMixin {
 /// A widget that renders Text with animated blue/red shadows that simulates chromatic aberration of an old` CRT monitor
 class ChromaticText extends StatefulWidget {
   final String text;
+  final TextStyle style;
 
-  const ChromaticText({Key? key, required this.text}) : super(key: key);
+  const ChromaticText({
+    Key? key,
+    required this.text,
+    required this.style,
+  }) : super(key: key);
 
   @override
   State<ChromaticText> createState() => _ChromaticTextState();
@@ -243,6 +249,18 @@ class _ChromaticTextState extends State<ChromaticText> with SingleTickerProvider
       2.1841838852799786.keyframe(95 / 100, Curves.ease),
       2.6208764473832513.keyframe(100 / 100, Curves.ease),
     ], name: 'blue'),
+    KeyframeProperty<double>([
+      5.0.keyframe(0 / 100, Curves.ease),
+      8.0.keyframe(25 / 100, Curves.ease),
+      0.0.keyframe(50 / 100, Curves.ease),
+      5.0.keyframe(75 / 100, Curves.ease),
+      10.0.keyframe(100 / 100, Curves.ease),
+    ], name: 'green'),
+    KeyframeProperty<double>([
+      2.0.keyframe(0 / 100, Curves.ease),
+      6.0.keyframe(50 / 100, Curves.ease),
+      1.0.keyframe(100 / 100, Curves.ease),
+    ], name: 'green-offset'),
   ]);
 
   @override
@@ -255,9 +273,7 @@ class _ChromaticTextState extends State<ChromaticText> with SingleTickerProvider
         double blueOffset = values<double>('blue');
         return Text(
           widget.text,
-          style: theme.textTheme.headline6!.copyWith(
-            color: theme.colorScheme.secondary,
-            fontSize: 50,
+          style: widget.style.copyWith(
             shadows: [
               Shadow(
                 color: const Color.fromRGBO(0, 30, 255, .5),
@@ -268,6 +284,11 @@ class _ChromaticTextState extends State<ChromaticText> with SingleTickerProvider
                 color: const Color.fromRGBO(255, 0, 80, .3),
                 blurRadius: 1,
                 offset: Offset(redOffset, 0),
+              ),
+              Shadow(
+                blurRadius: values<double>('green'),
+                color: secondaryColor.withOpacity(.1),
+                offset: Offset(values<double>('green-offset'), 0),
               ),
               const Shadow(
                 blurRadius: 3,

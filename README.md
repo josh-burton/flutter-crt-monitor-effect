@@ -1,16 +1,9 @@
-# crt_monitor_effect
+# CRT Monitor Effect
 
-A new Flutter project.
+A attempt at replicating the CRT monitor effect from [phantom.sh](https://www.phantom.sh) in Flutter.
 
-## Getting Started
+This uses a few techniques:
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- a repeated 2x3 'pixel' that is overlayed across all content with an ImageShader
+- a transparent flicker overlayed on all content that flickers every 100ms.
+- blue/red text shadows with an offset that is animated across keyframes. The keyframes tween package is used to achieve this.

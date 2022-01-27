@@ -44,10 +44,15 @@ class _HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       body: Center(
         child: ChromaticText(
-          text: "CRT Monitor effect".toUpperCase(),
+          text: "1234 CRT Monitor effect".toUpperCase(),
+          style: theme.textTheme.headline6!.copyWith(
+            color: secondaryColor,
+            fontSize: 50,
+          ),
         ),
       ),
     );
